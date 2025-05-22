@@ -50,4 +50,13 @@
         value: "0"
         login_password: "{{ redis_password }}"
 
+    - name: "Get server cluster information"
+      community.general.redis_info:
+        cluster: true
+      register: "result"
+
+    - name: "Print server cluster information"
+      ansible.builtin.debug:
+        var: "result.cluster_info"
+
 ...
