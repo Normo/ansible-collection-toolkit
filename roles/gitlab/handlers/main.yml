@@ -10,32 +10,23 @@
   ansible.builtin.set_fact:
     gitlab_is_upgraded: true
 
-- name: "Reconfigure Primary GitLab"
+- name: "Reconfigure GitLab"
   become: true
   ansible.builtin.shell:
     cmd: "gitlab-ctl reconfigure || (touch /etc/gitlab/reconfigure_failed && /bin/false)"
   changed_when: true
   environment:
-    SKIP_POST_DEPLOYMENT_MIGRATIONS: true
+    SKIP_POST_DEPLOYMENT_MIGRATIONS: "{{ 'true' if gitlab_is_primary | bool else '' }}"
   listen: "GitLab has been installed or upgraded"
-  when: "gitlab_is_primary"
 
 - name: "Run registry metadata database migrations"
   become: true
-  ansible.builtin.command: "gitlab-ctl registry-database migrate up --skip-post-deployment"
+  ansible.builtin.command: "gitlab-ctl registry-database migrate up"
   changed_when: true
   listen: "GitLab has been installed or upgraded"
-  when:
-    - "__gitlab_registry_database_used"
-    - "gitlab_is_primary"
-
-- name: "Reconfigure Non Primary GitLab"
-  become: true
-  ansible.builtin.shell:
-    cmd: "gitlab-ctl reconfigure || (touch /etc/gitlab/reconfigure_failed && /bin/false)"
-  changed_when: true
-  listen: "GitLab has been installed or upgraded"
-  when: "not gitlab_is_primary"
+  environment:
+    SKIP_POST_DEPLOYMENT_MIGRATIONS: "{{ 'true' if gitlab_is_primary | bool else '' }}"
+  when: "__gitlab_registry_database_used"
 
 - name: "Restart GitLab"
   become: true
