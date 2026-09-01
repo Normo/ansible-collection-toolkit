@@ -50,7 +50,7 @@ argument_specs:
         description:
           - "Password used to authenticate in the Redis cluster."
           - "This password is required for clients to connect to Redis."
-          - "This password must be changed from its default value."
+          - "The default value of this password must be changed for security reasons."
         type: "str"
         default: "changeme"
         required: false
