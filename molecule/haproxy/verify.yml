@@ -6,24 +6,12 @@
 ---
 - name: "Verify HAProxy"
   hosts: "all"
+  vars_files:
+    - "../../roles/haproxy/vars/main.yml"
   tasks:
-    - name: "Stop play for unsupported HAProxy / Debian combinations"
+    - name: "Stop play for unsupported HAProxy / OS release combinations"
       ansible.builtin.meta: "end_host"
-      when: >-
-        ansible_facts.distribution == 'Debian' and
-        (ansible_facts.distribution_release | lower == 'bookworm' and haproxy_version | regex_search('\\d+\\.\\d+') is version('2.4', '==') or
-        ansible_facts.distribution_release | lower == 'bookworm' and haproxy_version | regex_search('\\d+\\.\\d+') is version('3.4', '>=') or
-        ansible_facts.distribution_release | lower == 'bullseye' and haproxy_version | regex_search('\\d+\\.\\d+') is version('3.2', '>=') or
-        ansible_facts.distribution_release | lower == 'buster' and haproxy_version | regex_search('\\d+\\.\\d+') is version('2.8', '>='))
-
-    - name: "Stop play for unsupported HAProxy / Ubuntu combinations"
-      ansible.builtin.meta: "end_host"
-      when: >-
-        ansible_facts.distribution == 'Ubuntu' and
-        (ansible_facts.distribution_release | lower == 'noble' and haproxy_version | regex_search('\\d+\\.\\d+') is version('2.9', '<') or
-        ansible_facts.distribution_release | lower == 'noble' and haproxy_version | regex_search('\\d+\\.\\d+') is version('3.4', '>=') or
-        ansible_facts.distribution_release | lower == 'resolute' and haproxy_version | regex_search('\\d+\\.\\d+') is version('3.2', '<') or
-        ansible_facts.distribution_release | lower not in ['noble', 'resolute'] and haproxy_version | regex_search('\\d+\\.\\d+') is version('3.2', '>='))
+      when: "__haproxy_unsupported_combination | bool"
 
     - name: "Populate service facts."
       ansible.builtin.service_facts:

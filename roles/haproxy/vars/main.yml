@@ -1,0 +1,25 @@
+# SPDX-FileCopyrightText: Helmholtz Centre for Environmental Research (UFZ)
+# SPDX-FileCopyrightText: Helmholtz-Zentrum Dresden-Rossendorf (HZDR)
+#
+# SPDX-License-Identifier: Apache-2.0
+
+---
+# HAProxy release series (major.minor) derived from haproxy_version
+__haproxy_release_series: "{{ haproxy_version | regex_search('\\d+\\.\\d+') }}"
+
+# Combinations of HAProxy release series and distribution release that are
+# not supported by this role (see compatibility matrix in the role README).
+# Also used by the Molecule scenario to skip verification of these hosts.
+__haproxy_unsupported_combination: >-
+  {{
+    (ansible_facts.distribution == 'Debian' and
+      (ansible_facts.distribution_release | lower == 'bookworm' and __haproxy_release_series is version('2.4', '==') or
+       ansible_facts.distribution_release | lower == 'bookworm' and __haproxy_release_series is version('3.4', '>='))) or
+    (ansible_facts.distribution == 'Ubuntu' and
+      (ansible_facts.distribution_release | lower == 'noble' and __haproxy_release_series is version('2.9', '<') or
+       ansible_facts.distribution_release | lower == 'noble' and __haproxy_release_series is version('3.4', '>=') or
+       ansible_facts.distribution_release | lower == 'resolute' and __haproxy_release_series is version('3.2', '<') or
+       ansible_facts.distribution_release | lower not in ['noble', 'resolute'] and __haproxy_release_series is version('3.2', '>=')))
+  }}
+
+...
