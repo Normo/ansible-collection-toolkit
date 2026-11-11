@@ -18,6 +18,14 @@ zammad_hide_sensitive_changes: true
 zammad_nginx_additional_server_configs: []
 zammad_nginx_server_tokens: "off"
 zammad_nginx_additional_locations: []
+# Clear client-supplied SSO identity headers before proxying to Zammad.
+# Zammad 7.2.3 fixed an account takeover via client-controlled identity in SSO
+# authentication (GHSA-4749-hj8h-f4jf) by clearing these headers.
+# Entries are rendered verbatim into the Nginx "location" blocks.
+# In an SSO setup, keep the header set by the reverse proxy and clear the other.
+zammad_nginx_sso_identity_headers:
+  - 'proxy_set_header X-Forwarded-User "";'
+  - 'proxy_set_header Remote-User "";'
 
 zammad_force_es_searchindex_rebuild: false
 
